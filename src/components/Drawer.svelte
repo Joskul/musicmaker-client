@@ -17,7 +17,7 @@
 		{
 			title: 'GitHub',
 			child: FaGithub,
-			url: 'https://github.com/Joskul'
+			url: 'https://github.com/Joskul/musicmaker-client'
 		}
 	];
 </script>
