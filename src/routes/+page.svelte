@@ -1,7 +1,8 @@
-<h1 class="text-3xl font-bold underline">Hello world!</h1>
+<script>
+	import Layout from './+layout.svelte';
+</script>
 
-<style lang="postcss">
-	:global(html) {
-		background-color: theme(colors.gray.100);
-	}
-</style>
+<Layout class="flex flex-col justify-center items-center">
+	<p class="text-2xl my-8">Having <i>troubles</i> with your tracks?</p>
+	<a role="button" class="btn" href="/tool">Try this</a>
+</Layout>

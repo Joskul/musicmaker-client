@@ -2,7 +2,15 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			fontFamily: {
+				sans: ['Hack'],
+				signature: ['Maxtune']
+			}
+		}
 	},
-	plugins: []
+	plugins: [require('daisyui')],
+	daisyui: {
+		themes: ['light', 'dark', 'cupcake', 'retro']
+	}
 };
