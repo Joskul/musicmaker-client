@@ -6,6 +6,8 @@
 	let fileName = '';
 	let warning = '';
 
+	const ENDPOINT = "http://127.0.0.1:5000";
+
 	onMount(() => {
 		document.addEventListener('dragover', handleDragOver);
 		document.addEventListener('drop', handleDrop);
@@ -74,7 +76,7 @@
 			formData.append('file', file);
 
 			try {
-				const response = await fetch('http://127.0.0.1:5000/upload', {
+				const response = await fetch(ENDPOINT + '/upload', {
 					method: 'POST',
 					body: formData
 				});
@@ -96,10 +98,15 @@
 		}
 	};
 
+	const handleURL = async () => {
+		// TODO: Fetch audio from youtube url
+		await uploadFile();
+	};
+
 	const getFile = () => {
 		if (!window.ActiveXObject) {
 			var save = document.createElement('a');
-			save.href = 'http://127.0.0.1:5000/documents/' + fileName;
+			save.href = ENDPOINT + '/documents/' + fileName;
 			save.target = '_blank';
 			save.download = fileName || 'unknown';
 
@@ -115,12 +122,12 @@
 
 		// for IE < 11
 		else if (!!window.ActiveXObject && document.execCommand) {
-			var _window = window.open('http://127.0.0.1:5000/documents/' + fileName, '_blank');
+			var _window = window.open(ENDPOINT + '/documents/' + fileName, '_blank');
 			_window.document.close();
 			_window.document.execCommand(
 				'SaveAs',
 				true,
-				fileName || 'http://127.0.0.1:5000/documents/' + fileName
+				fileName || ENDPOINT + '/documents/' + fileName
 			);
 			_window.close();
 		}
@@ -130,14 +137,23 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 {#if !uploaded}
+	<div class="flex">
+		<input
+			type="text"
+			placeholder="Enter a YouTube URL"
+			class="input input-bordered w-full max-w-sm mx-2"
+		/>
+		<button class="btn mx-2" on:click={handleURL}>Upload</button>
+	</div>
+	<h2 class="my-4">OR</h2>
 	<div
-		class="m-8 border border-dashed bg-base-200 border-neutral relative {$$props.class} dropzone"
+		class="border border-dashed bg-base-200 border-neutral relative rounded-lg dropzone"
 		on:click={handleClick}
 		on:drop={handleDrop}
 	>
-		<input class="cursor-pointer relative block opacity-0 w-full h-full p-20 z-50" />
+		<input class="cursor-pointer relative block opacity-0 w-full max-w-lg h-full p-20 z-50" />
 		<div
-			class="text-center absolute top-1/3 bottom-1/3 left-0 right-0 flex items-center justify-center m-4"
+			class="text-center absolute top-1/3 bottom-1/3 left-0 right-0 flex items-center justify-center"
 		>
 			{#if warning != ''}
 				<p class="text-center">{warning}</p>
@@ -148,7 +164,7 @@
 			{/if}
 		</div>
 	</div>
-	<button class="btn" on:click={uploadFile}>Upload</button>
+	<button class="btn m-4" on:click={uploadFile}>Upload</button>
 {:else}
 	<p class="text-3xl">File Uploaded!</p>
 	<button class="btn m-4" on:click={getFile}>Download</button>

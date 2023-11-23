@@ -4,6 +4,6 @@
 </script>
 
 <Layout class="flex flex-col justify-center items-center">
-	<p class="text-5xl m-8">Split tracks into <b>MIDI</b> files✨</p>
-	<Dropzone class="rounded-lg m-8" />
+	<p class="text-5xl my-16">Split tracks into <b>MIDI</b> files✨</p>
+	<Dropzone />
 </Layout>
