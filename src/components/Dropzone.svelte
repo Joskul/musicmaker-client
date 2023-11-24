@@ -2,15 +2,34 @@
 	import { onMount } from 'svelte';
 
 	let file = null;
-	let uploaded = false;
-	let fileName = '';
-	let warning = '';
+	let fileId = '';
+	let userId = '';
 
-	const ENDPOINT = "http://127.0.0.1:5000";
+	let youtubeUrl = '';
+
+	let uploading = false;
+	let uploaded = false;
+	let warning = '';
+	let urlWarn = '';
+
+	const ENDPOINT = 'http://127.0.0.1:5000';
 
 	onMount(() => {
 		document.addEventListener('dragover', handleDragOver);
 		document.addEventListener('drop', handleDrop);
+
+		if (!userId) {
+			// Generate a random user ID and store it in a cookie
+			document.cookie = `userId=${Math.random().toString(36).substring(2, 15)}`;
+
+			const cookies = document.cookie.split(';');
+			for (const cookie of cookies) {
+				const [name, value] = cookie.trim().split('=');
+				if (name === 'userId') {
+					userId = value;
+				}
+			}
+		}
 
 		return () => {
 			document.removeEventListener('dragover', handleDragOver);
@@ -34,7 +53,7 @@
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = true;
-		input.accept = 'audio/'; // Add the file types you want to accept
+		input.accept = 'audio/';
 		input.addEventListener('change', handleFileSelect);
 		input.click();
 	};
@@ -70,27 +89,67 @@
 
 	const MAX_FILE_SIZE_MB = 100;
 
+	const handleURL = async () => {
+		urlWarn = '';
+
+		const regex =
+			/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+		const match = youtubeUrl.match(regex);
+		const videoId = match ? match[1] : null;
+
+		try {
+			uploading = true;
+			const response = await fetch(`${ENDPOINT}/process_video`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					videoId: videoId,
+					userId: userId
+				})
+			});
+
+			if (response.ok) {
+				const result = await response.json();
+				uploaded = true;
+				fileId = result.file_id;
+				console.log('File uploaded successfully!: ', result.file_id);
+			} else {
+				console.error('Error:', response.statusText);
+			}
+		} catch (error) {
+			console.error('Error:', error.message);
+		} finally {
+			uploading = false;
+		}
+	};
+
 	const uploadFile = async () => {
 		if (file) {
 			const formData = new FormData();
 			formData.append('file', file);
 
 			try {
-				const response = await fetch(ENDPOINT + '/upload', {
+				uploading = true; // Set uploading to true when starting the upload
+				const response = await fetch(`${ENDPOINT}/upload?user_id=${userId}`, {
 					method: 'POST',
 					body: formData
 				});
 
 				if (response.ok) {
-					uploaded = true;
 					const result = await response.json();
-					fileName = result.file_name;
-					console.log('File uploaded successfully!: ', result.file_name);
+					uploaded = true;
+					fileId = result.file_id;
+					console.log('File uploaded successfully!: ', result.file_id);
 				} else {
 					console.error('Error uploading file:', response.statusText);
 				}
 			} catch (error) {
 				console.error('Error uploading file:', error.message);
+			} finally {
+				uploading = false;
 			}
 		} else {
 			warning = 'No file selected!';
@@ -98,52 +157,53 @@
 		}
 	};
 
-	const handleURL = async () => {
-		// TODO: Fetch audio from youtube url
-		await uploadFile();
-	};
+	const getFile = async () => {
+		if (fileId) {
+			try {
+				const response = await fetch(`${ENDPOINT}/send_file/${userId}?fileId=${fileId}`);
 
-	const getFile = () => {
-		if (!window.ActiveXObject) {
-			var save = document.createElement('a');
-			save.href = ENDPOINT + '/documents/' + fileName;
-			save.target = '_blank';
-			save.download = fileName || 'unknown';
+				if (response.ok) {
+					const blob = await response.blob();
+					const url = window.URL.createObjectURL(blob);
 
-			var evt = new MouseEvent('click', {
-				view: window,
-				bubbles: true,
-				cancelable: false
-			});
-			save.dispatchEvent(evt);
+					const link = document.createElement('a');
+					link.href = url;
+					link.download = `${fileId}`;
+					link.click();
 
-			(window.URL || window.webkitURL).revokeObjectURL(save.href);
-		}
-
-		// for IE < 11
-		else if (!!window.ActiveXObject && document.execCommand) {
-			var _window = window.open(ENDPOINT + '/documents/' + fileName, '_blank');
-			_window.document.close();
-			_window.document.execCommand(
-				'SaveAs',
-				true,
-				fileName || ENDPOINT + '/documents/' + fileName
-			);
-			_window.close();
+					window.URL.revokeObjectURL(url);
+				} else {
+					console.error('Error:', response.statusText);
+				}
+			} catch (error) {
+				console.error('Error:', error.message);
+			}
+		} else {
+			warning = 'No file uploaded!';
+			console.warn(warning);
 		}
 	};
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-{#if !uploaded}
+{#if uploading}
+	<p class="text-3xl m-4">Uploading...</p>
+{:else if !uploaded}
 	<div class="flex">
 		<input
 			type="text"
+			bind:value={youtubeUrl}
 			placeholder="Enter a YouTube URL"
 			class="input input-bordered w-full max-w-sm mx-2"
 		/>
-		<button class="btn mx-2" on:click={handleURL}>Upload</button>
+		{#if urlWarn != ''}
+			<button class="btn mx-2 tooltip tooltip-open" data-tip={urlWarn} on:click={handleURL}
+				>Upload</button
+			>
+		{:else}
+			<button class="btn mx-2" on:click={handleURL}>Upload</button>
+		{/if}
 	</div>
 	<h2 class="my-4">OR</h2>
 	<div
@@ -166,6 +226,6 @@
 	</div>
 	<button class="btn m-4" on:click={uploadFile}>Upload</button>
 {:else}
-	<p class="text-3xl">File Uploaded!</p>
+	<p class="text-3xl m-4">File Uploaded!</p>
 	<button class="btn m-4" on:click={getFile}>Download</button>
 {/if}
