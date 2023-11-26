@@ -1,4 +1,8 @@
 <script>
+	import FaRegQuestionCircle from 'svelte-icons/fa/FaRegQuestionCircle.svelte';
+	import FaAlignLeft from 'svelte-icons/fa/FaAlignLeft.svelte';
+	import GiPianoKeys from 'svelte-icons/gi/GiPianoKeys.svelte';
+
 	import { onMount } from 'svelte';
 
 	let file = null;
@@ -157,10 +161,10 @@
 		}
 	};
 
-	const getFile = async () => {
+	const getFile = async (func = 'send_file') => {
 		if (fileId) {
 			try {
-				const response = await fetch(`${ENDPOINT}/send_file/${userId}?fileId=${fileId}`);
+				const response = await fetch(`${ENDPOINT}/${func}/${userId}?fileId=${fileId}`);
 
 				if (response.ok) {
 					const blob = await response.blob();
@@ -227,5 +231,15 @@
 	<button class="btn m-4" on:click={uploadFile}>Upload</button>
 {:else}
 	<p class="text-3xl m-4">File Uploaded!</p>
-	<button class="btn m-4" on:click={getFile}>Download</button>
+	<div class="flex my-4">
+		<button class="btn m-1 p-2 tooltip" data-tip="Track information" on:click={getFile}>
+			<FaRegQuestionCircle />
+		</button>
+		<button class="btn m-1 p-2 tooltip" data-tip="Split instruments" on:click={getFile}>
+			<FaAlignLeft />
+		</button>
+		<button class="btn m-1 p-2 tooltip" data-tip="Convert to MIDI" on:click={getFile}>
+			<GiPianoKeys />
+		</button>
+	</div>
 {/if}
