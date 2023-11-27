@@ -4,6 +4,6 @@
 </script>
 
 <Drawer />
-<div class="{$$props.class} h-screen w-full">
+<div class="{$$props.class} h-screen w-full p-2">
 	<slot />
 </div>

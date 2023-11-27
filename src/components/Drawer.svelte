@@ -7,30 +7,33 @@
 		{
 			title: 'Home',
 			child: FaHome,
+			icon: 'fa-solid fa-house',
 			url: '/'
 		},
 		{
 			title: 'Splitter',
 			child: FaTools,
+			icon: 'fa-solid fa-toolbox',
 			url: '/tool'
 		},
 		{
 			title: 'GitHub',
 			child: FaGithub,
+			icon: 'fa-brands fa-github',
 			url: 'https://github.com/Joskul/musicmaker-client'
 		}
 	];
 </script>
 
-<ul class="menu absolute bottom-0 left-0 m-8 bg-base-300 rounded-lg">
+<ul class="menu absolute bottom-0 left-0 m-8 px-2 bg-base-300 rounded-lg z-50">
 	{#each drawerItems as item}
 		<li>
 			<a
-				class="tooltip tooltip-right h-16 my-2 py-3.5 bg-base-100 aspect-square"
+				class="tooltip tooltip-right my-1 bg-base-100 aspect-square flex justify-center"
 				data-tip={item.title}
 				href={item.url}
 			>
-				<svelte:component this={item.child} />
+				<i class="{item.icon} text-xl"></i>
 			</a>
 		</li>
 	{/each}
