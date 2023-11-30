@@ -11,7 +11,7 @@
 	let uploaded = false;
 	let urlWarn = '';
 
-	let fileId = '';
+	let processId = '';
 	let userId = '';
 
 	const ENDPOINT = 'http://127.0.0.1:5000';
@@ -46,22 +46,23 @@
 
 		try {
 			uploading = true;
-			const response = await fetch(`${ENDPOINT}/process_video`, {
+			const response = await fetch(`${ENDPOINT}/process_url`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
 					videoId: videoId,
-					userId: userId
+					userId: userId,
+					format: 'youtube'
 				})
 			});
 
 			if (response.ok) {
 				const result = await response.json();
 				uploaded = true;
-				fileId = result.file_id;
-				console.log('File uploaded successfully!: ', result.file_id);
+				processId = result.process_id;
+				console.log('File uploaded successfully! Process ID: ', result.process_id);
 			} else {
 				console.error('Error:', response.statusText);
 			}
@@ -87,8 +88,8 @@
 				if (response.ok) {
 					const result = await response.json();
 					uploaded = true;
-					fileId = result.file_id;
-					console.log('File uploaded successfully!: ', result.file_id);
+					processId = result.process_id;
+					console.log('File uploaded successfully! Process ID : ', result.process_id);
 				} else {
 					console.error('Error uploading file:', response.statusText);
 				}
@@ -103,10 +104,10 @@
 		}
 	};
 
-	const processFile = async (func = 'send_file') => {
-		if (fileId) {
+	const processFile = async (func = 'get_file') => {
+		if (processId) {
 			try {
-				const response = await fetch(`${ENDPOINT}/${func}/${userId}?fileId=${fileId}`);
+				const response = await fetch(`${ENDPOINT}/${func}/${userId}?file_id=${processId}`);
 
 				if (response.ok) {
 					const blob = await response.blob();
@@ -114,7 +115,7 @@
 
 					const link = document.createElement('a');
 					link.href = url;
-					link.download = `${fileId}`;
+					link.download = `${processId}`;
 					link.click();
 
 					window.URL.revokeObjectURL(url);
@@ -181,7 +182,7 @@
 		<button class="btn m-4" on:click={uploadFile}>Upload</button>
 	{/if}
 {:else}
-	<AudioPlayer src="{ENDPOINT}/send_file/{userId}?fileId=${fileId}" />
+	<AudioPlayer src="{ENDPOINT}/get_file/{userId}" />
 	<div class="flex my-4 justify-center">
 		{#each actions as item}
 			<button
