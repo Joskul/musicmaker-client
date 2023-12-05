@@ -46,14 +46,13 @@
 
 		try {
 			uploading = true;
-			const response = await fetch(`${ENDPOINT}/process_url`, {
+			const response = await fetch(`${ENDPOINT}/process-url?user_id=${userId}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					videoId: videoId,
-					userId: userId,
+					video_id: videoId,
 					format: 'youtube'
 				})
 			});
@@ -80,7 +79,7 @@
 
 			try {
 				uploading = true; // Set uploading to true when starting the upload
-				const response = await fetch(`${ENDPOINT}/upload?user_id=${userId}`, {
+				const response = await fetch(`${ENDPOINT}/process-file?user_id=${userId}`, {
 					method: 'POST',
 					body: formData
 				});
@@ -104,10 +103,10 @@
 		}
 	};
 
-	const processFile = async (func = 'get_file') => {
+	const processAction = async (api_endpoint = 'audio-file') => {
 		if (processId) {
 			try {
-				const response = await fetch(`${ENDPOINT}/${func}/${userId}?file_id=${processId}`);
+				const response = await fetch(`${ENDPOINT}/${api_endpoint}/${userId}?process_id=${processID}`);
 
 				if (response.ok) {
 					const blob = await response.blob();
@@ -134,17 +133,17 @@
 	let actions = [
 		{
 			label: 'Track Information',
-			action: 'send_file',
+			action: 'audio-file',
 			icon: 'fa-circle-info'
 		},
 		{
 			label: 'Split Instruments',
-			action: 'send_file',
+			action: 'audio-file',
 			icon: 'fa-guitar'
 		},
 		{
 			label: 'Convert to MIDI',
-			action: 'send_file',
+			action: 'audio-file',
 			icon: 'fa-piano-keyboard'
 		}
 	];
@@ -182,13 +181,13 @@
 		<button class="btn m-4" on:click={uploadFile}>Upload</button>
 	{/if}
 {:else}
-	<AudioPlayer src="{ENDPOINT}/get_file/{userId}" />
+	<AudioPlayer src="{ENDPOINT}/audio-file/{userId}" />
 	<div class="flex my-4 justify-center">
 		{#each actions as item}
 			<button
 				class="btn m-1 p-5 tooltip aspect-square h-full"
 				data-tip={item.label}
-				on:click={() => processFile(item.action)}
+				on:click={() => processAction(item.action)}
 			>
 				<i class="fa-solid {item.icon} text-6xl"></i>
 			</button>
