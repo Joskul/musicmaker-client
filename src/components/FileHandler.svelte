@@ -170,7 +170,10 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 {#if uploading}
-	<h3 class="m-4">Uploading...</h3>
+	<h3 class="m-4">
+		Uploading
+		<div class="loading loading-dots" />
+	</h3>
 {:else if !uploaded}
 	<div class="flex">
 		<input
@@ -207,7 +210,7 @@
 		<h3 class="my-4">
 			Track Identification:
 			{#await processAction('info', '', false)}
-				...
+				<div class="loading loading-dots" />
 			{:then type}
 				{type.text}
 			{:catch error}
