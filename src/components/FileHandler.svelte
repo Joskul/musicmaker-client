@@ -11,6 +11,7 @@
 	let uploaded = false;
 	let urlWarn = '';
 
+	let processName = '';
 	let processId = '';
 	let userId = '';
 
@@ -61,6 +62,7 @@
 				const result = await response.json();
 				uploaded = true;
 				processId = result.process_id;
+				processName = result.process_name;
 				console.log('File uploaded successfully! Process ID: ', result.process_id);
 			} else {
 				console.error('Error:', response.statusText);
@@ -88,6 +90,7 @@
 					const result = await response.json();
 					uploaded = true;
 					processId = result.process_id;
+					processName = result.process_name;
 					console.log('File uploaded successfully! Process ID : ', result.process_id);
 				} else {
 					console.error('Error uploading file:', response.statusText);
@@ -103,30 +106,46 @@
 		}
 	};
 
-	const processAction = async (api_endpoint = 'audio-file') => {
-		if (processId) {
+	const processAction = async (api_endpoint = 'audio-file', download = true) => {
+		console.log(processId);
+		if (processId != '') {
 			try {
-				const response = await fetch(`${ENDPOINT}/${api_endpoint}/${userId}?process_id=${processID}`);
+				const response = await fetch(
+					`${ENDPOINT}/${api_endpoint}/${userId}?process_id=${processId}`,
+					{
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				);
 
 				if (response.ok) {
-					const blob = await response.blob();
-					const url = window.URL.createObjectURL(blob);
+					if (download) {
+						const blob = await response.blob();
+						const url = window.URL.createObjectURL(blob);
 
-					const link = document.createElement('a');
-					link.href = url;
-					link.download = `${processId}`;
-					link.click();
+						const link = document.createElement('a');
+						link.href = url;
+						link.download = `${processName}.mp3`;
+						link.click();
 
-					window.URL.revokeObjectURL(url);
+						window.URL.revokeObjectURL(url);
+					}
+					const result = await response.json();
+					return result;
 				} else {
 					console.error('Error:', response.statusText);
+					throw response.statusText;
 				}
 			} catch (error) {
 				console.error('Error:', error.message);
+				throw error.message;
 			}
 		} else {
 			dropzoneWarning = 'No file uploaded!';
 			console.warn(dropzoneWarning);
+			throw dropzoneWarning;
 		}
 	};
 
@@ -181,7 +200,22 @@
 		<button class="btn m-4" on:click={uploadFile}>Upload</button>
 	{/if}
 {:else}
+	<div>
+		<h1 class="text-4xl">{processName}</h1>
+	</div>
 	<AudioPlayer src="{ENDPOINT}/audio-file/{userId}" />
+	<div>
+		<h1 class="text-4xl my-4">
+			Track Identification:
+			{#await processAction('info', false)}
+				...
+			{:then type}
+				{type.text}
+			{:catch error}
+				{error}
+			{/await}
+		</h1>
+	</div>
 	<div class="flex my-4 justify-center">
 		{#each actions as item}
 			<button
