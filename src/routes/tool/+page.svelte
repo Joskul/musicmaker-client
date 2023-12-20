@@ -4,6 +4,6 @@
 </script>
 
 <Layout class="flex flex-col justify-center items-center">
-	<p class="text-5xl my-16">Split tracks into <b>MIDI</b> files✨</p>
+	<h2 class="m-8">Split tracks into <b>MIDI</b> files✨</h2>
 	<FileHandler />
 </Layout>

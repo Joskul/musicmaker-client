@@ -171,7 +171,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 {#if uploading}
-	<p class="text-3xl m-4">Uploading...</p>
+	<h3 class="m-4">Uploading...</h3>
 {:else if !uploaded}
 	<div class="flex">
 		<input
@@ -189,7 +189,7 @@
 		{/if}
 	</div>
 
-	<h2 class="my-4">OR</h2>
+	<h3 class="my-4">OR</h3>
 
 	<Dropzone bind:file bind:warning={dropzoneWarning} />
 	{#if dropzoneWarning != ''}
@@ -201,11 +201,11 @@
 	{/if}
 {:else}
 	<div>
-		<h1 class="text-4xl">{processName}</h1>
+		<h3>{processName}</h3>
 	</div>
 	<AudioPlayer src="{ENDPOINT}/audio-file/{userId}" />
 	<div>
-		<h1 class="text-4xl my-4">
+		<h3 class="my-4">
 			Track Identification:
 			{#await processAction('info', false)}
 				...
@@ -214,7 +214,7 @@
 			{:catch error}
 				{error}
 			{/await}
-		</h1>
+		</h3>
 	</div>
 	<div class="flex my-4 justify-center">
 		{#each actions as item}
@@ -223,7 +223,7 @@
 				data-tip={item.label}
 				on:click={() => processAction(item.action)}
 			>
-				<i class="fa-solid {item.icon} text-6xl"></i>
+				<i class="fa-solid {item.icon} md:text-6xl text-2xl"></i>
 			</button>
 		{/each}
 	</div>
