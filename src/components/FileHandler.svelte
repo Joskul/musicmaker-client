@@ -10,12 +10,15 @@
 	let uploading = false;
 	let uploaded = false;
 	let urlWarn = '';
+	let processing = false;
+
+	let action;
 
 	let processName = '';
 	let processId = '';
 	let userId = '';
 
-	const ENDPOINT = 'https://beat-ml-api.onrender.com';
+	const ENDPOINT = 'http://127.0.0.1:5000';
 
 	onMount(() => {
 		if (!userId) {
@@ -111,7 +114,10 @@
 		file_format = 'mp3',
 		download = true
 	) => {
-		console.log(processId);
+		if (download) {
+			processing = true;
+		}
+		console.log(processing);
 		if (processId != '') {
 			try {
 				const response = await fetch(
@@ -137,18 +143,22 @@
 						window.URL.revokeObjectURL(url);
 					}
 					const result = await response.json();
+					processing = false;
 					return result;
 				} else {
 					console.error('Error:', response.statusText);
+					processing = false;
 					throw response.statusText;
 				}
 			} catch (error) {
 				console.error('Error:', error.message);
+				processing = false;
 				throw error.message;
 			}
 		} else {
 			dropzoneWarning = 'No file uploaded!';
 			console.warn(dropzoneWarning);
+			processing = false;
 			throw dropzoneWarning;
 		}
 	};
@@ -161,7 +171,7 @@
 		},
 		{
 			label: 'Convert to MIDI',
-			action: ['audio-file', 'mid'],
+			action: ['midi-file', 'mid'],
 			icon: 'fa-piano-keyboard'
 		}
 	];
@@ -223,10 +233,22 @@
 			<button
 				class="btn m-1 p-5 tooltip aspect-square h-full"
 				data-tip={item.label}
-				on:click={() => processAction(...item.action)}
+				on:click={() => {
+					action = item.action;
+					processing = true;
+				}}
 			>
 				<i class="fa-solid {item.icon} md:text-6xl text-2xl"></i>
 			</button>
 		{/each}
 	</div>
+	{#if processing}
+		{#await processAction(...action)}
+			<div class="loading loading-spinner loading-lg m-4" />
+		{:then response}
+			{response}
+		{:catch error}
+			{error}
+		{/await}
+	{/if}
 {/if}
