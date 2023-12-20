@@ -53,7 +53,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					video_id: videoId,
+					content_id: videoId,
 					format: 'youtube'
 				})
 			});
