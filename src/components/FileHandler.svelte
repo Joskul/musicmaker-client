@@ -83,10 +83,7 @@
 				uploading = true; // Set uploading to true when starting the upload
 				const response = await fetch(`${ENDPOINT}/process-file?user_id=${userId}`, {
 					method: 'POST',
-					body: formData,
-					headers: {
-						'Content-Type': 'audio'
-					}
+					body: formData
 				});
 
 				if (response.ok) {
