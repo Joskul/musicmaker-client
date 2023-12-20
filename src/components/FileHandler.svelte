@@ -15,7 +15,7 @@
 	let processId = '';
 	let userId = '';
 
-	const ENDPOINT = 'https://beat-ml-api.onrender.com';
+	const ENDPOINT = 'http://127.0.0.1:5000';
 
 	onMount(() => {
 		if (!userId) {
@@ -83,7 +83,10 @@
 				uploading = true; // Set uploading to true when starting the upload
 				const response = await fetch(`${ENDPOINT}/process-file?user_id=${userId}`, {
 					method: 'POST',
-					body: formData
+					body: formData,
+					headers: {
+						'Content-Type': 'application/json'
+					}
 				});
 
 				if (response.ok) {
@@ -106,7 +109,11 @@
 		}
 	};
 
-	const processAction = async (api_endpoint = 'audio-file', download = true) => {
+	const processAction = async (
+		api_endpoint = 'audio-file',
+		file_format = 'mp3',
+		download = true
+	) => {
 		console.log(processId);
 		if (processId != '') {
 			try {
@@ -127,7 +134,7 @@
 
 						const link = document.createElement('a');
 						link.href = url;
-						link.download = `${processName}.mp3`;
+						link.download = `${processName}.${file_format}`;
 						link.click();
 
 						window.URL.revokeObjectURL(url);
@@ -151,18 +158,13 @@
 
 	let actions = [
 		{
-			label: 'Track Information',
-			action: 'audio-file',
-			icon: 'fa-circle-info'
-		},
-		{
 			label: 'Split Instruments',
-			action: 'audio-file',
+			action: ['audio-file', 'mp3'],
 			icon: 'fa-guitar'
 		},
 		{
 			label: 'Convert to MIDI',
-			action: 'audio-file',
+			action: ['audio-file', 'mid'],
 			icon: 'fa-piano-keyboard'
 		}
 	];
@@ -207,7 +209,7 @@
 	<div>
 		<h3 class="my-4">
 			Track Identification:
-			{#await processAction('info', false)}
+			{#await processAction('info', '', false)}
 				...
 			{:then type}
 				{type.text}
@@ -221,7 +223,7 @@
 			<button
 				class="btn m-1 p-5 tooltip aspect-square h-full"
 				data-tip={item.label}
-				on:click={() => processAction(item.action)}
+				on:click={() => processAction(...item.action)}
 			>
 				<i class="fa-solid {item.icon} md:text-6xl text-2xl"></i>
 			</button>
