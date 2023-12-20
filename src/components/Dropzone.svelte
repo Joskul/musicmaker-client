@@ -81,7 +81,7 @@
 		{#if file}
 			<p class="text-center p-2">Selected file: {file.name}</p>
 		{:else}
-			<h4>Click or drop a file here</h4>
+			<p>Click or drop a file here</p>
 		{/if}
 	</div>
 </div>

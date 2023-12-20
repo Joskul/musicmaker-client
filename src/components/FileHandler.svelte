@@ -83,7 +83,10 @@
 				uploading = true; // Set uploading to true when starting the upload
 				const response = await fetch(`${ENDPOINT}/process-file?user_id=${userId}`, {
 					method: 'POST',
-					body: formData
+					body: formData,
+					headers: {
+						'Content-Type': 'audio'
+					}
 				});
 
 				if (response.ok) {
@@ -189,7 +192,7 @@
 		{/if}
 	</div>
 
-	<h3 class="my-4">OR</h3>
+	<h4 class="my-4">OR</h4>
 
 	<Dropzone bind:file bind:warning={dropzoneWarning} />
 	{#if dropzoneWarning != ''}
