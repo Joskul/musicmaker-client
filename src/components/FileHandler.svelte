@@ -18,7 +18,7 @@
 	let processId = '';
 	let userId = '';
 
-	const ENDPOINT = 'https://beat-ml-api.onrender.com';
+	const ENDPOINT = 'https://musicmaker-server-production.up.railway.app';
 
 	onMount(() => {
 		if (!userId) {
@@ -217,12 +217,16 @@
 	</div>
 	<AudioPlayer src="{ENDPOINT}/audio-file/{userId}" />
 	<div>
-		<h3 class="my-4">
+		<h3 class="my-4 text-center">
 			Track Identification:
-			{#await processAction('info', '', false)}
+			{#await processAction('track-info', '', false)}
 				<div class="loading loading-dots" />
 			{:then type}
-				{type.text}
+				{#if type.production}
+					<div class="text-error">{type.text}</div>
+				{:else}
+					<div>{type.text}</div>
+				{/if}
 			{:catch error}
 				{error}
 			{/await}
