@@ -18,7 +18,7 @@
 	let processId = '';
 	let userId = '';
 
-	const ENDPOINT = 'https://beat-ml-api.onrender.com';
+	const ENDPOINT = 'http://127.0.0.1:5000';
 
 	onMount(() => {
 		if (!userId) {
@@ -166,7 +166,7 @@
 	let actions = [
 		{
 			label: 'Split Instruments',
-			action: ['audio-file', 'mp3'],
+			action: ['separate', 'zip'],
 			icon: 'fa-guitar'
 		},
 		{
