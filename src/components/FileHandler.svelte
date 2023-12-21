@@ -18,7 +18,7 @@
 	let processId = '';
 	let userId = '';
 
-	const ENDPOINT = 'https://musicmaker-server-production.up.railway.app';
+	const ENDPOINT = 'https://beat-ml-api.onrender.com';
 
 	onMount(() => {
 		if (!userId) {
